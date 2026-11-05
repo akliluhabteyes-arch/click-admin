@@ -1,0 +1,1580 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ClickAddis Admin</title>
+<meta name="description" content="ClickAddis website administration" />
+<meta name="theme-color" content="#0b0f17" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<style>
+/* ============================================================================
+   Theme
+   ========================================================================== */
+:root {
+  --bg: #0b0f17; --panel: #121826; --panel-2: #182032; --hover: #1e283d;
+  --border: #243049; --text: #e7ebf3; --muted: #8b97ad; --faint: #5b6780;
+  --primary: #f7a01c; --primary-2: #fbbf24; --primary-ink: #1b1204; --primary-soft: rgba(247,160,28,.12);
+  --danger: #ef4444; --danger-soft: rgba(239,68,68,.12);
+  --success: #22c55e; --success-soft: rgba(34,197,94,.12);
+  --info: #3b82f6; --info-soft: rgba(59,130,246,.12);
+  --warn: #eab308; --warn-soft: rgba(234,179,8,.12);
+  --shadow: 0 10px 30px -12px rgba(0,0,0,.6);
+  --radius: 12px; --radius-sm: 8px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f4f6fb; --panel: #ffffff; --panel-2: #f1f4f9; --hover: #e9eef6;
+  --border: #e1e7f0; --text: #0f172a; --muted: #5d6b82; --faint: #94a3b8;
+  --primary: #e8900a; --primary-2: #f59e0b; --primary-ink: #ffffff; --primary-soft: rgba(232,144,10,.12);
+  --shadow: 0 10px 30px -14px rgba(15,23,42,.25);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img { max-width: 100%; display: block; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
+.row { display: flex; align-items: center; gap: 8px; }
+.row.wrap { flex-wrap: wrap; }
+.grow { flex: 1; min-width: 0; }
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.i.sm { width: 15px; height: 15px; }
+
+/* ============================================================================
+   Buttons & inputs
+   ========================================================================== */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--panel-2); cursor: pointer;
+  font-weight: 600; font-size: 13px; white-space: nowrap; transition: background .15s, border-color .15s, opacity .15s; }
+.btn:hover { background: var(--hover); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.danger { background: var(--danger-soft); border-color: transparent; color: var(--danger); }
+.btn.danger:hover { background: var(--danger); color: #fff; }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.ghost:hover { background: var(--hover); }
+.btn.sm { height: 30px; padding: 0 10px; font-size: 12px; }
+.btn.icon { width: 34px; padding: 0; }
+.btn.sm.icon { width: 30px; }
+.btn .spinner { width: 14px; height: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field > label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.field > label .req { color: var(--danger); margin-left: 2px; }
+.field .help { font-size: 12px; color: var(--faint); }
+.field .err { font-size: 12px; color: var(--danger); }
+.input, .select, .textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 11px; outline: none; transition: border-color .15s, box-shadow .15s; }
+:root[data-theme="light"] .input, :root[data-theme="light"] .select, :root[data-theme="light"] .textarea { background: #fff; }
+.input:focus, .select:focus, .textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.input.invalid, .select.invalid, .textarea.invalid { border-color: var(--danger); }
+.textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+.textarea.tall { min-height: 220px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12.5px; }
+.select { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b97ad' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; }
+.input-group { display: flex; gap: 6px; }
+.input-group .input { flex: 1; }
+
+.switch { position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch .track { width: 36px; height: 20px; border-radius: 999px; background: var(--border); transition: background .15s; position: relative; flex: none; }
+.switch .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.switch input:checked + .track { background: var(--success); }
+.switch input:checked + .track::after { transform: translateX(16px); }
+.switch input:focus-visible + .track { box-shadow: 0 0 0 3px var(--primary-soft); }
+.switch input:disabled + .track { opacity: .5; }
+
+.grid { display: grid; gap: 14px; }
+.grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.span-2 { grid-column: span 2; }
+.span-all { grid-column: 1 / -1; }
+
+/* ============================================================================
+   Badges, cards, tables
+   ========================================================================== */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; white-space: nowrap; background: var(--panel-2); color: var(--muted); }
+.badge.dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge.success { background: var(--success-soft); color: var(--success); }
+.badge.danger { background: var(--danger-soft); color: var(--danger); }
+.badge.info { background: var(--info-soft); color: var(--info); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.badge.primary { background: var(--primary-soft); color: var(--primary); }
+
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); }
+.card-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.card-head h3 { margin: 0; font-size: 15px; }
+.card-head p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; }
+.card-body { padding: 18px; }
+.stack { display: flex; flex-direction: column; gap: 18px; }
+
+.table-wrap { overflow-x: auto; }
+table.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--faint);
+  padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; background: var(--panel); position: sticky; top: 0; }
+.table td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.table tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover td { background: color-mix(in srgb, var(--hover) 55%, transparent); }
+.table tr.clickable { cursor: pointer; }
+.table tr.unread td { font-weight: 600; }
+.table .actions { display: flex; justify-content: flex-end; gap: 4px; white-space: nowrap; }
+.table .num { width: 1%; white-space: nowrap; color: var(--faint); }
+.thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: var(--panel-2); border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 20px; flex: none; overflow: hidden; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.swatch { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); flex: none; }
+.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 460px; }
+
+.empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+.empty svg.i { width: 36px; height: 36px; color: var(--faint); margin-bottom: 10px; }
+.empty h4 { margin: 0 0 4px; color: var(--text); font-size: 15px; }
+
+/* ============================================================================
+   Layout
+   ========================================================================== */
+.app { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 40; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 18px 18px 14px; }
+.brand-logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--primary-2), var(--primary)); color: #1b1204; display: grid; place-items: center; font-weight: 800; font-size: 14px; flex: none; }
+.brand b { display: block; font-size: 15px; }
+.brand span { font-size: 11.5px; color: var(--muted); }
+.nav { padding: 6px 10px 16px; flex: 1; }
+.nav-group { font-size: 11px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; padding: 14px 10px 6px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); color: var(--muted); font-weight: 500; text-decoration: none; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.active { background: var(--primary-soft); color: var(--primary); }
+.nav a .count { margin-left: auto; background: var(--primary); color: var(--primary-ink); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 0 7px; line-height: 18px; }
+.sidebar-foot { border-top: 1px solid var(--border); padding: 12px; }
+.me { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: var(--radius-sm); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border); display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--primary); flex: none; }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.topbar h1 { margin: 0; font-size: 18px; }
+.topbar .crumb { color: var(--muted); font-size: 12.5px; }
+.content { padding: 24px; max-width: 1240px; width: 100%; }
+.page-head { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.page-head h2 { margin: 0; font-size: 22px; }
+.page-head p { margin: 4px 0 0; color: var(--muted); }
+.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.search { position: relative; }
+.search svg.i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); }
+.search .input { padding-left: 34px; width: 240px; height: 36px; }
+.menu-btn { display: none; }
+.scrim { display: none; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.stat { padding: 16px 18px; display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; }
+a.stat:hover { border-color: var(--primary); text-decoration: none; }
+.stat .ic { width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); flex: none; }
+.stat b { display: block; font-size: 22px; line-height: 1.1; }
+.stat span { font-size: 12.5px; color: var(--muted); }
+
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tab { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--panel); cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.tab.active { background: var(--primary-soft); border-color: transparent; color: var(--primary); }
+.tab .n { font-size: 11px; opacity: .8; }
+
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--border); }
+
+/* image tiles (settings + forms) */
+.img-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.img-tile { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel-2); display: flex; flex-direction: column; }
+.img-tile .preview { aspect-ratio: 16/10; display: grid; place-items: center; background: repeating-conic-gradient(var(--panel) 0 25%, var(--panel-2) 0 50%) 0 0/16px 16px; color: var(--faint); font-size: 12px; text-align: center; padding: 6px; }
+.img-tile .preview img { width: 100%; height: 100%; object-fit: contain; }
+.img-tile .meta { padding: 10px 12px; display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); background: var(--panel); }
+.img-field { display: flex; gap: 14px; align-items: flex-start; }
+.img-field .preview { width: 120px; height: 120px; border-radius: var(--radius); border: 1px dashed var(--border); background: var(--panel-2); display: grid; place-items: center; overflow: hidden; color: var(--faint); font-size: 12px; text-align: center; flex: none; }
+.img-field .preview img { width: 100%; height: 100%; object-fit: cover; }
+
+.detail-grid { display: grid; grid-template-columns: 120px 1fr; gap: 8px 14px; font-size: 13.5px; }
+.detail-grid dt { color: var(--muted); }
+.detail-grid dd { margin: 0; word-break: break-word; }
+.message-box { background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; white-space: pre-wrap; word-break: break-word; }
+.callout { border: 1px solid var(--border); background: var(--panel-2); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 12.5px; color: var(--muted); }
+.callout.warn { border-color: transparent; background: var(--warn-soft); color: var(--warn); }
+.preview-chat { background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; max-height: 260px; overflow: auto; }
+.preview-chat .line { min-height: 1.2em; }
+
+/* ============================================================================
+   Login
+   ========================================================================== */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(800px 400px at 10% 0%, var(--primary-soft), transparent 60%), radial-gradient(600px 400px at 100% 100%, rgba(59,130,246,.08), transparent 60%), var(--bg); }
+.login-card { width: 100%; max-width: 400px; padding: 30px; box-shadow: var(--shadow); }
+.login-card .brand { padding: 0 0 22px; }
+.login-card h2 { margin: 0 0 4px; font-size: 21px; }
+.login-card form { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; }
+.alert { padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px; background: var(--danger-soft); color: var(--danger); }
+.alert.info { background: var(--info-soft); color: var(--info); }
+
+/* ============================================================================
+   Modal, toast, spinner
+   ========================================================================== */
+.modal-root { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; background: rgba(3,6,12,.6); backdrop-filter: blur(3px); animation: fade .15s ease; }
+.modal { width: 100%; max-width: 620px; max-height: calc(100vh - 40px); display: flex; flex-direction: column; box-shadow: var(--shadow); animation: pop .18s ease; }
+.modal.sm { max-width: 420px; }
+.modal.lg { max-width: 820px; }
+.modal-head { display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.modal-head h3 { margin: 0; font-size: 16px; flex: 1; }
+.modal-body { padding: 20px; overflow-y: auto; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+
+.toasts { position: fixed; right: 18px; bottom: 18px; z-index: 200; display: flex; flex-direction: column; gap: 8px; max-width: min(380px, calc(100vw - 36px)); }
+.toast { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow); animation: pop .2s ease; font-size: 13px; }
+.toast.success svg.i { color: var(--success); }
+.toast.error svg.i { color: var(--danger); }
+.toast.info svg.i { color: var(--info); }
+
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--border); border-top-color: var(--primary); animation: spin .7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading { display: grid; place-items: center; padding: 60px; }
+.offline-bar { background: var(--warn-soft); color: var(--warn); text-align: center; padding: 6px; font-size: 12.5px; font-weight: 600; }
+
+/* ============================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; inset: 0 auto 0 0; width: 272px; transform: translateX(-100%); transition: transform .2s ease; }
+  .app.nav-open .sidebar { transform: none; box-shadow: var(--shadow); }
+  .app.nav-open .scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  .menu-btn { display: inline-flex; }
+  .content { padding: 18px 16px; }
+  .topbar { padding: 10px 16px; }
+}
+@media (max-width: 640px) {
+  .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
+  .span-2 { grid-column: auto; }
+  .search .input { width: 100%; }
+  .toolbar { width: 100%; margin-left: 0; }
+  .toolbar .search { flex: 1; }
+  .hide-sm { display: none !important; }
+  .detail-grid { grid-template-columns: 1fr; gap: 2px; }
+  .detail-grid dd { margin-bottom: 8px; }
+  .img-field { flex-direction: column; }
+  .modal-root { padding: 0; align-items: end; }
+  .modal { max-height: 92vh; border-radius: var(--radius) var(--radius) 0 0; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ============================================================================
+   Config
+   ========================================================================== */
+// Served by the backend at /admin → same origin. Opened any other way (Live Server,
+// file://, another port) → the local backend on port 5000.
+const SERVED_BY_BACKEND = location.protocol.startsWith("http") && location.pathname.startsWith("/admin");
+const API = (() => {
+  const saved = localStorage.getItem("ca_api_base");
+  if (saved) return saved.replace(/\/+$/, "");
+  return SERVED_BY_BACKEND ? location.origin + "/api" : "http://localhost:5000/api";
+})();
+const SITE_URL_KEY = "ca_site_url";
+const siteUrl = () => localStorage.getItem(SITE_URL_KEY) || "http://localhost:8080";
+
+// Icon names supported by the website (must match Frontend/src/lib/icons.ts)
+const ICON_KEYS = ["Monitor","Smartphone","Code2","Database","BarChart3","Shield","UtensilsCrossed","Package","Wine","UserCheck",
+  "Dumbbell","Building","Building2","ShoppingBag","Store","Target","Lightbulb","Heart","Rocket","Cloud","Server","Cpu","Globe",
+  "Laptop","Tablet","Wifi","Lock","Settings","Users","Briefcase","Truck","Hospital","Stethoscope","GraduationCap","Hotel","Car",
+  "Coffee","ShoppingCart","CreditCard","Wallet","PieChart","LineChart","TrendingUp","Zap","Star","Award","Headphones",
+  "MessageSquare","Calendar","ClipboardList","FileText","Layers","Box","Warehouse","Factory","Home","Sparkles","Wrench"];
+
+const GRADIENTS = [
+  "from-orange-500/20 to-red-500/20", "from-blue-500/20 to-cyan-500/20", "from-purple-500/20 to-pink-500/20",
+  "from-green-500/20 to-emerald-500/20", "from-yellow-500/20 to-amber-500/20", "from-indigo-500/20 to-violet-500/20",
+  "from-pink-500/20 to-rose-500/20", "from-teal-500/20 to-cyan-500/20", "from-sky-500/20 to-blue-500/20",
+  "from-lime-500/20 to-green-500/20", "from-fuchsia-500/20 to-purple-500/20", "from-amber-500/20 to-orange-500/20",
+];
+const TW = { orange:"#f97316", red:"#ef4444", blue:"#3b82f6", cyan:"#06b6d4", purple:"#a855f7", pink:"#ec4899", green:"#22c55e",
+  emerald:"#10b981", yellow:"#eab308", amber:"#f59e0b", indigo:"#6366f1", violet:"#8b5cf6", rose:"#f43f5e", teal:"#14b8a6",
+  sky:"#0ea5e9", lime:"#84cc16", fuchsia:"#d946ef", slate:"#64748b", gray:"#6b7280" };
+const SOCIAL_PLATFORMS = [["facebook","Facebook"],["telegram","Telegram"],["instagram","Instagram"],["linkedin","LinkedIn"],["youtube","YouTube"],["tiktok","TikTok"]];
+const MSG_STATUSES = [["new","New","info"],["read","Read",""],["replied","Replied","success"],["archived","Archived",""],["spam","Spam","danger"]];
+
+/* ============================================================================
+   Icons (inline SVG, lucide-style)
+   ========================================================================== */
+const P = {
+  dashboard: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+  settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+  chart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  monitor: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  building: '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',
+  quote: '<path d="M3 21c3 0 7-1 7-8V5c0-1.25-.76-2.02-2-2H4c-1.25 0-2 .75-2 1.97V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .01-1 1.03V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.76-2.02-2-2h-4c-1.25 0-2 .75-2 1.97V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+  bot: '<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2M20 14h2M15 13v2M9 13v2"/>',
+  zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+  plus: '<path d="M5 12h14M12 5v14"/>',
+  edit: '<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/><path d="m15 5 4 4"/>',
+  trash: '<path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  up: '<path d="m18 15-6-6-6 6"/>',
+  down: '<path d="m6 9 6 6 6-6"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-14.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  alert: '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  external: '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+  image: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+  key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
+  refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  dice: '<rect width="12" height="12" x="2" y="10" rx="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01M10 14h.01M15 6h.01M18 9h.01"/>',
+  eye: '<path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/>',
+};
+const icon = (name, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[name] || ""}</svg>`;
+
+/* ============================================================================
+   Helpers
+   ========================================================================== */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const initials = (name = "") => name.trim().split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase() || "?";
+const fmtDate = (v) => (v ? new Date(v).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "—");
+const fmtRel = (v) => {
+  if (!v) return "Never";
+  const s = (Date.now() - new Date(v).getTime()) / 1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
+  if (s < 604800) return `${Math.floor(s / 86400)} d ago`;
+  return new Date(v).toLocaleDateString();
+};
+const gradientCss = (cls = "") => {
+  const from = /from-([a-z]+)-\d+/.exec(cls)?.[1], to = /to-([a-z]+)-\d+/.exec(cls)?.[1];
+  const a = TW[from] || "#888", b = TW[to] || a;
+  return `linear-gradient(135deg, ${a}55, ${b}55)`;
+};
+const markdownPreview = (text = "") =>
+  String(text).split("\n").map((line) => {
+    const html = esc(line).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>");
+    return `<div class="line">${html || "&nbsp;"}</div>`;
+  }).join("");
+const randomPassword = () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+  const arr = crypto.getRandomValues(new Uint32Array(14));
+  return [...arr].map((n) => chars[n % chars.length]).join("");
+};
+const debounce = (fn, ms = 300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+/* ============================================================================
+   State, API, auth
+   ========================================================================== */
+const state = {
+  token: localStorage.getItem("ca_token"),
+  expiresAt: Number(localStorage.getItem("ca_expires_at")) || 0,
+  user: JSON.parse(localStorage.getItem("ca_user") || "null"),
+  newMessages: 0,
+};
+
+const saveSession = ({ token, expires_at, user }) => {
+  Object.assign(state, { token, expiresAt: expires_at, user });
+  localStorage.setItem("ca_token", token);
+  localStorage.setItem("ca_expires_at", String(expires_at));
+  localStorage.setItem("ca_user", JSON.stringify(user));
+};
+
+const logout = (message) => {
+  ["ca_token", "ca_expires_at", "ca_user"].forEach((k) => localStorage.removeItem(k));
+  Object.assign(state, { token: null, expiresAt: 0, user: null });
+  closeModal();
+  renderLogin(message);
+};
+
+class ApiErr extends Error {
+  constructor(message, status, details) { super(message); this.status = status; this.details = details; }
+}
+
+async function api(path, { method = "GET", body, form } = {}) {
+  const headers = {};
+  if (state.token) headers.Authorization = `Bearer ${state.token}`;
+  let payload;
+  if (form) payload = form;
+  else if (body !== undefined) { headers["Content-Type"] = "application/json"; payload = JSON.stringify(body); }
+
+  let res;
+  try { res = await fetch(API + path, { method, headers, body: payload }); }
+  catch { throw new ApiErr("Cannot reach the server. Check that the backend is running and you are online.", 0); }
+
+  const json = await res.json().catch(() => null);
+  if (json === null) {
+    // not a response from the ClickAddis API (wrong server / address)
+    throw new ApiErr(`The server at ${API} is not the ClickAddis API (HTTP ${res.status}). Open the admin at http://localhost:5000/admin or fix the API address under “Server settings”.`, res.status);
+  }
+  if (res.status === 401 && state.token && path !== "/auth/login") {
+    logout(json.error?.message || "Your session has expired. Please log in again.");
+    throw new ApiErr("Session expired", 401);
+  }
+  if (!res.ok || json.success === false) {
+    throw new ApiErr(json.error?.message || `Request failed (${res.status})`, res.status, json.error?.details);
+  }
+  return json;
+}
+
+/* ============================================================================
+   UI primitives: toast, modal, confirm
+   ========================================================================== */
+function toast(message, type = "success") {
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.innerHTML = `${icon(type === "success" ? "check" : type === "error" ? "alert" : "info")}<div class="grow">${esc(message)}</div>`;
+  $("#toasts").appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transition = "opacity .3s"; setTimeout(() => el.remove(), 300); }, type === "error" ? 6000 : 3200);
+}
+const toastError = (err) => { if (err?.status !== 401) toast(err?.message || "Something went wrong", "error"); };
+
+let modalCleanup = null;
+function openModal({ title, body, footer = "", size = "" }) {
+  closeModal();
+  const root = document.createElement("div");
+  root.className = "modal-root";
+  root.id = "modal";
+  root.innerHTML = `
+    <div class="modal card ${size}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <div class="modal-head"><h3>${esc(title)}</h3><button class="btn ghost icon" data-action="close-modal" aria-label="Close">${icon("x")}</button></div>
+      <div class="modal-body">${body}</div>
+      ${footer ? `<div class="modal-foot">${footer}</div>` : ""}
+    </div>`;
+  root.addEventListener("mousedown", (e) => { if (e.target === root) closeModal(); });
+  const onKey = (e) => { if (e.key === "Escape") closeModal(); };
+  document.addEventListener("keydown", onKey);
+  modalCleanup = () => document.removeEventListener("keydown", onKey);
+  document.body.appendChild(root);
+  setTimeout(() => $("input:not([type=hidden]):not([type=checkbox]):not([type=file]), textarea, select", root)?.focus(), 30);
+  return root;
+}
+function closeModal() {
+  $("#modal")?.remove();
+  if (modalCleanup) { modalCleanup(); modalCleanup = null; }
+}
+function confirmDialog({ title = "Are you sure?", message, confirmText = "Delete", danger = true }) {
+  return new Promise((resolve) => {
+    const root = openModal({
+      title, size: "sm",
+      body: `<p style="margin:0">${message}</p>`,
+      footer: `<button class="btn" data-ref="no">Cancel</button><button class="btn ${danger ? "danger" : "primary"}" data-ref="yes">${esc(confirmText)}</button>`,
+    });
+    let done = false;
+    const finish = (v) => { if (done) return; done = true; closeModal(); resolve(v); };
+    $('[data-ref="yes"]', root).addEventListener("click", () => finish(true));
+    $('[data-ref="no"]', root).addEventListener("click", () => finish(false));
+    new MutationObserver((_, obs) => { if (!document.body.contains(root)) { obs.disconnect(); finish(false); } })
+      .observe(document.body, { childList: true });
+  });
+}
+const setBusy = (btn, busy, label) => {
+  if (!btn) return;
+  if (busy) { btn.dataset.label = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>${label ? esc(label) : ""}`; }
+  else { btn.disabled = false; if (btn.dataset.label) btn.innerHTML = btn.dataset.label; }
+};
+
+/* ============================================================================
+   Form builder
+   ========================================================================== */
+// field: { name, label, type, required, help, placeholder, options, span, step, min, max, rows }
+function fieldHtml(f, value) {
+  const id = `f_${f.name}`;
+  const req = f.required ? '<span class="req">*</span>' : "";
+  const v = value ?? (f.default !== undefined ? f.default : "");
+  const attrs = `id="${id}" name="${esc(f.name)}" ${f.required ? "required" : ""} ${f.placeholder ? `placeholder="${esc(f.placeholder)}"` : ""}`;
+  const help = f.help ? `<div class="help">${f.help}</div>` : "";
+  const err = `<div class="err hidden" data-err="${esc(f.name)}"></div>`;
+  const span = f.span === "all" ? "span-all" : f.span === 2 ? "span-2" : "";
+  let control;
+
+  switch (f.type) {
+    case "textarea":
+      control = `<textarea class="textarea ${f.tall ? "tall" : ""}" ${attrs} rows="${f.rows || 4}" maxlength="${f.max || 5000}">${esc(v)}</textarea>`;
+      break;
+    case "number":
+      control = `<input class="input" type="number" ${attrs} value="${esc(v)}" step="${f.step || 1}" ${f.min !== undefined ? `min="${f.min}"` : ""} ${f.max !== undefined ? `max="${f.max}"` : ""} />`;
+      break;
+    case "bool":
+      return `<div class="field ${span}"><label class="switch" style="margin-top:${f.inline ? 0 : 22}px"><input type="checkbox" id="${id}" name="${esc(f.name)}" ${(value ?? f.default) ? "checked" : ""} /><span class="track"></span><span>${esc(f.label)}</span></label>${help}</div>`;
+    case "select":
+      control = `<select class="select" ${attrs}>${f.options.map(([val, label]) => `<option value="${esc(val)}" ${String(val) === String(v) ? "selected" : ""}>${esc(label)}</option>`).join("")}</select>`;
+      break;
+    case "icon":
+      control = `<select class="select" ${attrs}>${!ICON_KEYS.includes(v) && v ? `<option value="${esc(v)}" selected>${esc(v)} (unknown)</option>` : ""}${ICON_KEYS.map((k) => `<option value="${k}" ${k === v ? "selected" : ""}>${k}</option>`).join("")}</select>`;
+      break;
+    case "gradient": {
+      const opts = GRADIENTS.includes(v) || !v ? GRADIENTS : [v, ...GRADIENTS];
+      control = `<div class="row"><span class="swatch" data-swatch style="background:${gradientCss(v || GRADIENTS[0])}"></span>
+        <select class="select grow" ${attrs} data-gradient>${opts.map((g) => `<option value="${esc(g)}" ${g === v ? "selected" : ""}>${esc(g)}</option>`).join("")}</select></div>`;
+      break;
+    }
+    case "keywords":
+      control = `<input class="input" type="text" ${attrs} value="${esc(Array.isArray(v) ? v.join(", ") : v)}" />`;
+      break;
+    case "password":
+      control = `<div class="input-group"><input class="input" type="text" autocomplete="new-password" ${attrs} value="${esc(v)}" minlength="8" />
+        <button type="button" class="btn icon" data-action="gen-password" data-target="${id}" title="Generate password">${icon("dice")}</button></div>`;
+      break;
+    default:
+      control = `<input class="input" type="${f.type === "email" ? "email" : f.type === "url" ? "url" : "text"}" ${attrs} value="${esc(v)}" maxlength="${f.max || 500}" ${f.pattern ? `pattern="${f.pattern}"` : ""} />`;
+  }
+  return `<div class="field ${span}"><label for="${id}">${esc(f.label)}${req}</label>${control}${help}${err}</div>`;
+}
+
+function imageFieldHtml(img, currentUrl) {
+  return `<div class="field span-all"><label>${esc(img.label)}</label>
+    <div class="img-field">
+      <div class="preview" data-img-preview>${currentUrl ? `<img src="${esc(currentUrl)}" alt="" />` : `${icon("image")}`}</div>
+      <div class="stack" style="gap:8px">
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" name="__image" class="input" data-img-input />
+        <div class="help">JPEG, PNG, WebP, GIF or AVIF · max 5 MB · stored on Cloudinary</div>
+        ${currentUrl ? `<label class="switch"><input type="checkbox" name="__remove_image" /><span class="track"></span><span>Remove current image</span></label>` : ""}
+      </div>
+    </div></div>`;
+}
+
+function readForm(fields, formEl) {
+  const out = {};
+  for (const f of fields) {
+    const el = formEl.elements[f.name];
+    if (!el) continue;
+    if (f.type === "bool") out[f.name] = el.checked;
+    else if (f.type === "number") out[f.name] = el.value === "" ? "" : Number(el.value);
+    else if (f.type === "keywords") out[f.name] = el.value.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+    else out[f.name] = el.value.trim();
+  }
+  return out;
+}
+
+function showFieldErrors(formEl, err) {
+  $$("[data-err]", formEl).forEach((e) => { e.classList.add("hidden"); e.textContent = ""; });
+  $$(".invalid", formEl).forEach((e) => e.classList.remove("invalid"));
+  let shown = false;
+  for (const d of err?.details || []) {
+    const box = $(`[data-err="${CSS.escape(d.field)}"]`, formEl);
+    if (box) {
+      box.textContent = d.message; box.classList.remove("hidden");
+      formEl.elements[d.field]?.classList?.add("invalid");
+      shown = true;
+    }
+  }
+  if (!shown || err.status !== 400) toastError(err);
+  else toast("Please fix the highlighted fields", "error");
+}
+
+function wireFormExtras(root) {
+  $$("[data-gradient]", root).forEach((sel) => sel.addEventListener("change", () => {
+    $("[data-swatch]", sel.parentElement).style.background = gradientCss(sel.value);
+  }));
+  $$("[data-img-input]", root).forEach((input) => input.addEventListener("change", () => {
+    const file = input.files[0];
+    const preview = $("[data-img-preview]", root);
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast("Image is larger than 5 MB", "error"); input.value = ""; return; }
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="" />`;
+  }));
+}
+
+/* ============================================================================
+   Content resources (mirror Backend/src/config/resources.js)
+   ========================================================================== */
+const orderFields = [
+  { name: "display_order", label: "Display order", type: "number", min: 0, help: "Lower numbers appear first" },
+  { name: "is_active", label: "Visible on website", type: "bool", default: true },
+];
+const slugField = { name: "slug", label: "Slug", help: "Unique ID. Leave empty to generate automatically.", pattern: "[a-z0-9]+(-[a-z0-9]+)*", max: 80 };
+
+const RESOURCES = {
+  stats: {
+    path: "stats", title: "Hero Stats", single: "stat", group: "Homepage", nav: "chart",
+    desc: "Counters shown in the hero section (e.g. “20+ Happy Clients”).",
+    titleOf: (r) => `${r.value}${r.suffix} ${r.label}`,
+    cols: [
+      { label: "Value", render: (r) => `<b style="font-size:16px;color:var(--primary)">${esc(r.value)}${esc(r.suffix)}</b>` },
+      { label: "Label", render: (r) => esc(r.label) },
+    ],
+    fields: [
+      { name: "value", label: "Value", type: "number", required: true, min: 0 },
+      { name: "suffix", label: "Suffix", default: "+", max: 10, placeholder: "+" },
+      { name: "label", label: "Label", required: true, max: 100, span: "all" },
+      ...orderFields, slugField,
+    ],
+  },
+  values: {
+    path: "values", title: "Company Values", single: "value", group: "Homepage", nav: "heart",
+    desc: "Value cards in the About section.",
+    titleOf: (r) => r.title,
+    cols: [
+      { label: "Value", render: (r) => `<b>${esc(r.title)}</b><div class="muted small clamp">${esc(r.description)}</div>` },
+      { label: "Icon", render: (r) => `<span class="badge">${esc(r.icon_key)}</span>`, cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "title", label: "Title", required: true, max: 100 },
+      { name: "icon_key", label: "Icon", type: "icon", required: true },
+      { name: "description", label: "Description", type: "textarea", required: true, max: 500, span: "all", rows: 3 },
+      ...orderFields, slugField,
+    ],
+  },
+  services: {
+    path: "services", title: "Services", single: "service", group: "Homepage", nav: "monitor",
+    desc: "The “Our Services” section and the Services column in the footer.",
+    titleOf: (r) => r.title,
+    cols: [
+      { label: "Service", render: (r) => `<b>${esc(r.title)}</b><div class="muted small clamp">${esc(r.description)}</div>` },
+      { label: "Icon", render: (r) => `<span class="badge">${esc(r.icon_key)}</span>`, cls: "hide-sm" },
+      { label: "Footer", render: (r) => r.show_in_footer ? `<span class="badge primary">#${esc(r.footer_order ?? "–")}</span>` : '<span class="muted">—</span>', cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "title", label: "Title", required: true, max: 100 },
+      { name: "icon_key", label: "Icon", type: "icon", required: true },
+      { name: "description", label: "Description", type: "textarea", required: true, max: 500, span: "all", rows: 3 },
+      { name: "show_in_footer", label: "Show in footer", type: "bool" },
+      { name: "footer_order", label: "Footer order", type: "number", min: 0, help: "Position in the footer column" },
+      ...orderFields, slugField,
+    ],
+  },
+  solutions: {
+    path: "solutions", title: "ERP Solutions", single: "solution", group: "Homepage", nav: "box",
+    desc: "Enterprise Solutions grid and the Solutions column in the footer.",
+    titleOf: (r) => r.name,
+    image: { label: "Screenshot (optional)", col: "image_url" },
+    cols: [
+      { label: "", render: (r) => `<span class="swatch" style="width:36px;height:36px;background:${gradientCss(r.gradient_classes)}"></span>`, cls: "num" },
+      { label: "Solution", render: (r) => `<b>${esc(r.name)}</b>${r.short_description ? `<div class="muted small clamp">${esc(r.short_description)}</div>` : ""}` },
+      { label: "Icon", render: (r) => `<span class="badge">${esc(r.icon_key)}</span>`, cls: "hide-sm" },
+      { label: "Footer", render: (r) => r.show_in_footer ? `<span class="badge primary">#${esc(r.footer_order ?? "–")}</span>` : '<span class="muted">—</span>', cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "name", label: "Name", required: true, max: 100 },
+      { name: "icon_key", label: "Icon", type: "icon", required: true },
+      { name: "gradient_classes", label: "Card colour", type: "gradient", required: true, span: "all" },
+      { name: "short_description", label: "Short description", type: "textarea", max: 1000, span: "all", rows: 3, help: "Not shown yet — reserved for a future detail page." },
+      { name: "show_in_footer", label: "Show in footer", type: "bool" },
+      { name: "footer_order", label: "Footer order", type: "number", min: 0 },
+      ...orderFields, slugField,
+    ],
+  },
+  customers: {
+    path: "customers", title: "Customers", single: "customer", group: "Homepage", nav: "building",
+    desc: "The “Our Customers” grid. Upload a logo or use an emoji.",
+    titleOf: (r) => r.name,
+    image: { label: "Logo", col: "logo_url" },
+    cols: [
+      { label: "", render: (r) => `<span class="thumb">${r.logo_url ? `<img src="${esc(r.logo_url)}" alt="" />` : esc(r.icon || "🏢")}</span>`, cls: "num" },
+      { label: "Customer", render: (r) => `<b>${esc(r.name)}</b>${r.industry ? `<div class="muted small">${esc(r.industry)}</div>` : ""}` },
+      { label: "Website", render: (r) => r.website_url ? `<a href="${esc(r.website_url)}" target="_blank" rel="noopener">${esc(r.website_url.replace(/^https?:\/\//, ""))}</a>` : '<span class="muted">—</span>', cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "name", label: "Name", required: true, max: 150 },
+      { name: "icon", label: "Emoji", max: 16, help: "Shown when there is no logo", placeholder: "🍽️" },
+      { name: "industry", label: "Industry", max: 100 },
+      { name: "website_url", label: "Website", type: "url", placeholder: "https://" },
+      ...orderFields, slugField,
+    ],
+  },
+  testimonials: {
+    path: "testimonials", title: "Testimonials", single: "testimonial", group: "Homepage", nav: "quote", activeKey: "is_published",
+    desc: "“What Our Customers Say” section.",
+    titleOf: (r) => r.client_name,
+    image: { label: "Avatar / logo (optional)", col: "avatar_url" },
+    cols: [
+      { label: "", render: (r) => `<span class="thumb">${r.avatar_url ? `<img src="${esc(r.avatar_url)}" alt="" />` : esc(r.icon || "💬")}</span>`, cls: "num" },
+      { label: "Client", render: (r) => `<b>${esc(r.client_name)}</b><div class="muted small">${esc([r.author_name, r.author_role].filter(Boolean).join(" · "))}</div>` },
+      { label: "Quote", render: (r) => `<div class="clamp muted">“${esc(r.quote)}”</div>`, cls: "hide-sm" },
+      { label: "Rating", render: (r) => `<span style="color:var(--primary)">${"★".repeat(r.rating)}</span><span style="color:var(--faint)">${"★".repeat(5 - r.rating)}</span>`, cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "client_name", label: "Client / company", required: true, max: 150 },
+      { name: "customer_id", label: "Linked customer", type: "select", options: [], help: "Optional link to a customer" },
+      { name: "author_name", label: "Person quoted", max: 150 },
+      { name: "author_role", label: "Role", required: true, max: 100, placeholder: "General Manager" },
+      { name: "icon", label: "Emoji", max: 16, placeholder: "☕" },
+      { name: "rating", label: "Rating", type: "select", default: 5, options: [[5, "★★★★★ 5"], [4, "★★★★ 4"], [3, "★★★ 3"], [2, "★★ 2"], [1, "★ 1"]] },
+      { name: "quote", label: "Quote", type: "textarea", required: true, max: 2000, span: "all" },
+      { name: "display_order", label: "Display order", type: "number", min: 0 },
+      { name: "is_published", label: "Published", type: "bool", default: true },
+      slugField,
+    ],
+  },
+  team: {
+    path: "team", title: "Team Members", single: "team member", group: "Homepage", nav: "users",
+    desc: "“Meet The Experts” section.",
+    titleOf: (r) => r.full_name,
+    image: { label: "Photo", col: "image_url" },
+    cols: [
+      { label: "", render: (r) => `<span class="thumb">${r.image_url ? `<img src="${esc(r.image_url)}" alt="" />` : icon("user")}</span>`, cls: "num" },
+      { label: "Member", render: (r) => `<b>${esc(r.full_name)}</b><div class="muted small">${esc(r.role)}</div>` },
+      { label: "Contact", render: (r) => esc(r.email || "—"), cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "full_name", label: "Full name", required: true, max: 150 },
+      { name: "role", label: "Role", required: true, max: 100 },
+      { name: "bio", label: "Short bio", type: "textarea", max: 2000, span: "all", rows: 3 },
+      { name: "email", label: "Email", type: "email" },
+      { name: "telegram_url", label: "Telegram link", type: "url", placeholder: "https://t.me/username" },
+      { name: "instagram_url", label: "Instagram link", type: "url", placeholder: "https://instagram.com/username" },
+      { name: "linkedin_url", label: "LinkedIn link", type: "url", placeholder: "https://linkedin.com/in/username" },
+      ...orderFields, slugField,
+    ],
+  },
+  socialLinks: {
+    path: "social-links", title: "Social Links", single: "social link", group: "Homepage", nav: "share",
+    desc: "Social icons in the footer.",
+    titleOf: (r) => r.label,
+    cols: [
+      { label: "Platform", render: (r) => `<b>${esc(r.label)}</b><div class="muted small">${esc(r.platform)}</div>` },
+      { label: "URL", render: (r) => r.url && r.url !== "#" ? `<a href="${esc(r.url)}" target="_blank" rel="noopener" class="ellipsis" style="display:inline-block;max-width:320px">${esc(r.url)}</a>` : '<span class="badge warn">Not set</span>' },
+    ],
+    fields: [
+      { name: "platform", label: "Platform", type: "select", required: true, options: SOCIAL_PLATFORMS },
+      { name: "label", label: "Label", required: true, max: 50, help: "Used for accessibility (screen readers)" },
+      { name: "url", label: "Profile URL", required: true, max: 500, span: "all", placeholder: "https://facebook.com/clickaddis" },
+      ...orderFields,
+    ],
+  },
+  chatFaqs: {
+    path: "chat-faqs", title: "Chat Answers", single: "chat answer", group: "Chat assistant", nav: "bot", orderKey: "priority",
+    desc: "Keyword rules for the chat assistant. Checked from lowest priority number up — the first rule with a matching keyword answers.",
+    titleOf: (r) => r.keywords.join(", "),
+    cols: [
+      { label: "Keywords", render: (r) => `<div class="row wrap" style="gap:4px">${r.keywords.slice(0, 6).map((k) => `<span class="badge">${esc(k)}</span>`).join("")}${r.keywords.length > 6 ? `<span class="muted small">+${r.keywords.length - 6}</span>` : ""}</div>` },
+      { label: "Answer", render: (r) => `<div class="clamp muted">${esc(r.response.replace(/\*\*/g, ""))}</div>`, cls: "hide-sm" },
+    ],
+    fields: [
+      { name: "keywords", label: "Keywords", type: "keywords", required: true, span: "all", help: "Comma separated. Matches when a visitor's message contains any of these words." },
+      { name: "response", label: "Answer", type: "textarea", required: true, tall: true, span: "all", help: "Supports **bold**, *italic* and new lines. Use • or - for bullet lines." },
+      { name: "priority", label: "Priority", type: "number", min: 0, help: "Lower = checked first" },
+      { name: "is_active", label: "Active", type: "bool", default: true },
+      slugField,
+    ],
+  },
+  chatQuickActions: {
+    path: "chat-quick-actions", title: "Quick Replies", single: "quick reply", group: "Chat assistant", nav: "zap",
+    desc: "Shortcut buttons shown when the chat opens.",
+    titleOf: (r) => r.label,
+    cols: [
+      { label: "Button", render: (r) => `<span class="badge primary">${icon("zap", "sm")} ${esc(r.label)}</span>` },
+      { label: "Sends", render: (r) => `<span class="mono">${esc(r.query)}</span>` },
+    ],
+    fields: [
+      { name: "label", label: "Button label", required: true, max: 50 },
+      { name: "query", label: "Message sent", required: true, max: 200, help: "Should contain a keyword of a chat answer" },
+      ...orderFields, slugField,
+    ],
+  },
+};
+for (const [key, r] of Object.entries(RESOURCES)) { r.key = key; r.activeKey ||= "is_active"; r.orderKey ||= "display_order"; }
+
+/* ============================================================================
+   Router & shell
+   ========================================================================== */
+const NAV = [
+  { group: "Overview", items: [{ href: "#/dashboard", label: "Dashboard", icon: "dashboard" }, { href: "#/messages", label: "Messages", icon: "inbox", count: true }] },
+  { group: "Website", items: [{ href: "#/settings", label: "Site Settings", icon: "settings" }] },
+  { group: "Homepage", items: Object.values(RESOURCES).filter((r) => r.group === "Homepage").map((r) => ({ href: `#/content/${r.key}`, label: r.title, icon: r.nav })) },
+  { group: "Chat assistant", items: Object.values(RESOURCES).filter((r) => r.group === "Chat assistant").map((r) => ({ href: `#/content/${r.key}`, label: r.title, icon: r.nav })) },
+  { group: "Administration", superadmin: true, items: [{ href: "#/users", label: "Admin Accounts", icon: "shield" }] },
+  { group: "Account", items: [{ href: "#/account", label: "My Account", icon: "user" }] },
+];
+
+function renderShell() {
+  const u = state.user;
+  $("#root").innerHTML = `
+    ${navigator.onLine ? "" : '<div class="offline-bar">You are offline — changes cannot be saved</div>'}
+    <div class="app" id="app">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-logo">CA</div><div><b>ClickAddis</b><span>Admin panel</span></div></div>
+        <nav class="nav">${NAV.filter((g) => !g.superadmin || u.role === "superadmin").map((g) => `
+          <div class="nav-group">${g.group}</div>
+          ${g.items.map((i) => `<a href="${i.href}" data-nav="${i.href}">${icon(i.icon)}<span>${i.label}</span>${i.count ? '<span class="count hidden" id="msgCount"></span>' : ""}</a>`).join("")}`).join("")}
+        </nav>
+        <div class="sidebar-foot">
+          <div class="me"><div class="avatar">${esc(initials(u.full_name))}</div>
+            <div class="grow"><div class="ellipsis" style="font-weight:600">${esc(u.full_name)}</div>
+              <div class="small muted">@${esc(u.username)} · ${u.role === "superadmin" ? "Superadmin" : "Admin"}</div></div>
+            <button class="btn ghost icon" data-action="logout" title="Log out">${icon("logout")}</button></div>
+        </div>
+      </aside>
+      <div class="scrim" data-action="close-nav"></div>
+      <div class="main">
+        <header class="topbar">
+          <button class="btn ghost icon menu-btn" data-action="open-nav" aria-label="Menu">${icon("menu")}</button>
+          <div class="grow"><h1 id="pageTitle">Dashboard</h1></div>
+          <a class="btn sm hide-sm" href="${esc(siteUrl())}" target="_blank" rel="noopener">${icon("external", "sm")} View website</a>
+          <button class="btn ghost icon" data-action="toggle-theme" title="Toggle theme">${icon(document.documentElement.dataset.theme === "light" ? "moon" : "sun")}</button>
+        </header>
+        <main class="content" id="view"></main>
+      </div>
+    </div>`;
+}
+
+const setTitle = (t) => { const el = $("#pageTitle"); if (el) el.textContent = t; document.title = `${t} · ClickAddis Admin`; };
+const view = () => $("#view");
+const loadingHtml = '<div class="loading"><span class="spinner"></span></div>';
+
+async function route() {
+  if (!state.token || !state.user || (state.expiresAt && state.expiresAt * 1000 < Date.now())) {
+    if (state.token) return logout("Your session has expired. Please log in again.");
+    return renderLogin();
+  }
+  if (!$("#app")) renderShell();
+  $("#app").classList.remove("nav-open");
+
+  const hash = location.hash || "#/dashboard";
+  $$("[data-nav]").forEach((a) => a.classList.toggle("active", hash === a.dataset.nav || hash.startsWith(a.dataset.nav + "/")));
+  const [, page, param] = hash.split("/");
+  view().innerHTML = loadingHtml;
+  window.scrollTo(0, 0);
+
+  try {
+    if (page === "dashboard" || !page) await pageDashboard();
+    else if (page === "messages") await pageMessages();
+    else if (page === "settings") await pageSettings();
+    else if (page === "content" && RESOURCES[param]) await pageResource(RESOURCES[param]);
+    else if (page === "users" && state.user.role === "superadmin") await pageUsers();
+    else if (page === "account") await pageAccount();
+    else { location.hash = "#/dashboard"; return; }
+  } catch (err) {
+    if (err.status === 401) return;
+    view().innerHTML = `<div class="card empty">${icon("alert")}<h4>Could not load this page</h4><p>${esc(err.message)}</p>
+      <button class="btn" data-action="reload">${icon("refresh", "sm")} Try again</button></div>`;
+  }
+  refreshMessageCount();
+}
+
+async function refreshMessageCount() {
+  try {
+    const { data } = await api("/admin/contact-messages/stats");
+    state.newMessages = data.new || 0;
+    const el = $("#msgCount");
+    if (el) { el.textContent = state.newMessages; el.classList.toggle("hidden", !state.newMessages); }
+  } catch { /* ignore */ }
+}
+
+/* ============================================================================
+   Login
+   ========================================================================== */
+function renderLogin(message) {
+  document.title = "Log in · ClickAddis Admin";
+  $("#root").innerHTML = `
+    <div class="login">
+      <div class="card login-card">
+        <div class="brand"><div class="brand-logo">CA</div><div><b>ClickAddis</b><span>Admin panel</span></div></div>
+        <h2>Welcome back</h2>
+        <p class="muted" style="margin:0">Sign in to manage the website.</p>
+        <form id="loginForm" novalidate>
+          ${message ? `<div class="alert info">${esc(message)}</div>` : ""}
+          ${SERVED_BY_BACKEND ? "" : `<div class="alert info">Tip: the admin panel works best at <a href="http://localhost:5000/admin">http://localhost:5000/admin</a> (served by the backend).</div>`}
+          <div class="alert hidden" id="loginError"></div>
+          <div class="field"><label for="lu">Username</label><input class="input" id="lu" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required /></div>
+          <div class="field"><label for="lp">Password</label><input class="input" id="lp" name="password" type="password" autocomplete="current-password" required /></div>
+          <button class="btn primary" type="submit" style="height:40px">Sign in</button>
+        </form>
+        <details style="margin-top:18px" class="small muted">
+          <summary style="cursor:pointer">Server settings</summary>
+          <div class="field" style="margin-top:10px"><label for="apiBase">API address</label>
+            <div class="input-group"><input class="input" id="apiBase" value="${esc(API)}" /><button class="btn" type="button" data-action="save-api">Save</button></div>
+            <div class="help">Default: this server's /api</div></div>
+        </details>
+      </div>
+    </div>`;
+  setTimeout(() => $("#lu")?.focus(), 30);
+  $("#loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget, btn = $("button[type=submit]", form), box = $("#loginError");
+    const username = form.username.value.trim(), password = form.password.value;
+    box.classList.add("hidden");
+    if (!username || !password) { box.textContent = "Enter your username and password."; box.classList.remove("hidden"); return; }
+    setBusy(btn, true, "Signing in…");
+    try {
+      const { data } = await api("/auth/login", { method: "POST", body: { username, password } });
+      saveSession(data);
+      $("#root").innerHTML = "";
+      if (!location.hash || location.hash === "#/") location.hash = "#/dashboard";
+      route();
+      toast(`Welcome, ${data.user.full_name}`);
+    } catch (err) {
+      box.textContent = err.message; box.classList.remove("hidden");
+      setBusy(btn, false);
+    }
+  });
+}
+
+/* ============================================================================
+   Dashboard
+   ========================================================================== */
+async function pageDashboard() {
+  setTitle("Dashboard");
+  const contentKeys = ["services", "solutions", "customers", "testimonials", "team", "chatFaqs"];
+  const [msgStats, recent, ...lists] = await Promise.all([
+    api("/admin/contact-messages/stats").then((r) => r.data),
+    api("/admin/contact-messages?limit=5").then((r) => r.data),
+    ...contentKeys.map((k) => api(`/admin/${RESOURCES[k].path}`).then((r) => r.data).catch(() => [])),
+  ]);
+  const counts = Object.fromEntries(contentKeys.map((k, i) => [k, lists[i]]));
+  const card = (href, ic, value, label) => `<a class="card stat" href="${href}"><div class="ic">${icon(ic)}</div><div><b>${value}</b><span>${label}</span></div></a>`;
+  const active = (k) => counts[k].filter((r) => r[RESOURCES[k].activeKey]).length;
+
+  view().innerHTML = `
+    <div class="page-head"><div><h2>Hello, ${esc(state.user.full_name.split(" ")[0])} 👋</h2><p>Here's what's happening on the ClickAddis website.</p></div></div>
+    <div class="stats">
+      ${card("#/messages", "inbox", msgStats.new, "New messages")}
+      ${card("#/content/services", "monitor", active("services"), "Services")}
+      ${card("#/content/solutions", "box", active("solutions"), "ERP solutions")}
+      ${card("#/content/customers", "building", active("customers"), "Customers")}
+      ${card("#/content/testimonials", "quote", active("testimonials"), "Testimonials")}
+      ${card("#/content/team", "users", active("team"), "Team members")}
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div class="card">
+        <div class="card-head"><div class="grow"><h3>Latest messages</h3><p>From the website contact form</p></div><a class="btn sm" href="#/messages">View all</a></div>
+        ${recent.length ? `<div class="table-wrap"><table class="table"><tbody>${recent.map((m) => `
+          <tr class="clickable ${m.status === "new" ? "unread" : ""}" data-action="open-message" data-id="${m.id}">
+            <td><div class="ellipsis" style="max-width:260px">${esc(m.full_name)}</div><div class="small muted ellipsis" style="max-width:260px">${esc(m.message)}</div></td>
+            <td class="num">${statusBadge(m.status)}<div class="small muted" style="margin-top:3px;text-align:right">${fmtRel(m.created_at)}</div></td></tr>`).join("")}</tbody></table></div>`
+          : `<div class="empty">${icon("inbox")}<h4>No messages yet</h4><p>Contact form submissions will appear here.</p></div>`}
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="grow"><h3>Messages by status</h3><p>All time</p></div></div>
+        <div class="card-body stack" style="gap:12px">
+          ${MSG_STATUSES.map(([k, label, tone]) => {
+            const total = Object.values(msgStats).reduce((a, b) => a + b, 0) || 1;
+            const pct = Math.round(((msgStats[k] || 0) / total) * 100);
+            return `<div><div class="row" style="margin-bottom:5px"><span class="badge dot ${tone}">${label}</span><span class="grow"></span><b>${msgStats[k] || 0}</b></div>
+              <div style="height:6px;border-radius:9px;background:var(--panel-2);overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--primary);border-radius:9px"></div></div></div>`;
+          }).join("")}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="grow"><h3>Quick actions</h3><p>Common tasks</p></div></div>
+        <div class="card-body stack" style="gap:8px">
+          <a class="btn" href="#/settings" style="justify-content:flex-start">${icon("settings", "sm")} Edit contact details & images</a>
+          <a class="btn" href="#/content/team" style="justify-content:flex-start">${icon("users", "sm")} Manage team members</a>
+          <a class="btn" href="#/content/testimonials" style="justify-content:flex-start">${icon("quote", "sm")} Add a testimonial</a>
+          <a class="btn" href="#/content/chatFaqs" style="justify-content:flex-start">${icon("bot", "sm")} Train the chat assistant</a>
+          ${state.user.role === "superadmin" ? `<a class="btn" href="#/users" style="justify-content:flex-start">${icon("shield", "sm")} Manage admin accounts</a>` : ""}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ============================================================================
+   Generic content page
+   ========================================================================== */
+const pageState = {};
+async function pageResource(res) {
+  setTitle(res.title);
+  const { data } = await api(`/admin/${res.path}`);
+  pageState.res = res;
+  pageState.rows = data;
+  pageState.filter = "";
+
+  view().innerHTML = `
+    <div class="page-head">
+      <div><h2>${esc(res.title)}</h2><p>${esc(res.desc)}</p></div>
+      <div class="toolbar">
+        <div class="search">${icon("search", "sm")}<input class="input" type="search" placeholder="Search…" id="resSearch" /></div>
+        <button class="btn primary" data-action="res-new">${icon("plus", "sm")} Add ${esc(res.single)}</button>
+      </div>
+    </div>
+    <div class="card" id="resTable"></div>`;
+  $("#resSearch").addEventListener("input", debounce((e) => { pageState.filter = e.target.value.toLowerCase(); renderResourceTable(); }, 150));
+  renderResourceTable();
+}
+
+function renderResourceTable() {
+  const { res, rows, filter } = pageState;
+  const list = filter ? rows.filter((r) => JSON.stringify(r).toLowerCase().includes(filter)) : rows;
+  const box = $("#resTable");
+  if (!box) return;
+  if (!rows.length) {
+    box.innerHTML = `<div class="empty">${icon("box")}<h4>No ${esc(res.title.toLowerCase())} yet</h4><p>Add the first one to show it on the website.</p>
+      <button class="btn primary" data-action="res-new">${icon("plus", "sm")} Add ${esc(res.single)}</button></div>`;
+    return;
+  }
+  if (!list.length) { box.innerHTML = `<div class="empty">${icon("search")}<h4>No results</h4><p>Nothing matches “${esc(filter)}”.</p></div>`; return; }
+
+  box.innerHTML = `<div class="table-wrap"><table class="table">
+    <thead><tr><th class="num">#</th>${res.cols.map((c) => `<th class="${c.cls || ""}">${c.label}</th>`).join("")}<th>${res.activeKey === "is_published" ? "Published" : "Visible"}</th><th></th></tr></thead>
+    <tbody>${list.map((r, i) => `
+      <tr>
+        <td class="num">${esc(r[res.orderKey])}</td>
+        ${res.cols.map((c) => `<td class="${c.cls || ""}">${c.render(r)}</td>`).join("")}
+        <td><label class="switch" title="Show / hide on website"><input type="checkbox" data-action="res-toggle" data-id="${r.id}" ${r[res.activeKey] ? "checked" : ""} /><span class="track"></span></label></td>
+        <td><div class="actions">
+          ${filter ? "" : `<button class="btn ghost sm icon hide-sm" data-action="res-move" data-id="${r.id}" data-dir="-1" ${i === 0 ? "disabled" : ""} title="Move up">${icon("up", "sm")}</button>
+          <button class="btn ghost sm icon hide-sm" data-action="res-move" data-id="${r.id}" data-dir="1" ${i === list.length - 1 ? "disabled" : ""} title="Move down">${icon("down", "sm")}</button>`}
+          <button class="btn ghost sm icon" data-action="res-edit" data-id="${r.id}" title="Edit">${icon("edit", "sm")}</button>
+          <button class="btn ghost sm icon" data-action="res-delete" data-id="${r.id}" title="Delete" style="color:var(--danger)">${icon("trash", "sm")}</button>
+        </div></td>
+      </tr>`).join("")}</tbody></table></div>`;
+}
+
+async function reloadResource() {
+  const { data } = await api(`/admin/${pageState.res.path}`);
+  pageState.rows = data;
+  renderResourceTable();
+}
+
+async function openResourceForm(res, row) {
+  const isEdit = Boolean(row);
+  let fields = res.fields;
+
+  if (res.key === "testimonials") {
+    const customers = await api("/admin/customers").then((r) => r.data).catch(() => []);
+    fields = fields.map((f) => f.name === "customer_id" ? { ...f, options: [["", "— None —"], ...customers.map((c) => [c.id, c.name])] } : f);
+  }
+
+  const values = { ...(row || {}) };
+  if (!isEdit) {
+    const maxOrder = Math.max(0, ...pageState.rows.map((r) => Number(r[res.orderKey]) || 0));
+    values[res.orderKey] = maxOrder + 1;
+  }
+
+  const root = openModal({
+    title: isEdit ? `Edit ${res.single}` : `Add ${res.single}`,
+    size: "lg",
+    body: `<form id="resForm" class="grid cols-2" novalidate>
+      ${fields.map((f) => fieldHtml(f, isEdit || values[f.name] !== undefined ? values[f.name] : undefined)).join("")}
+      ${res.image ? imageFieldHtml(res.image, row?.[res.image.col]) : ""}
+      ${res.key === "chatFaqs" ? `<div class="field span-all"><label>Preview</label><div class="preview-chat" id="faqPreview">${markdownPreview(values.response || "")}</div></div>` : ""}
+    </form>`,
+    footer: `<button class="btn" data-action="close-modal">Cancel</button><button class="btn primary" id="resSave">${isEdit ? "Save changes" : `Add ${esc(res.single)}`}</button>`,
+  });
+  wireFormExtras(root);
+  const form = $("#resForm", root);
+  if (res.key === "chatFaqs") form.response.addEventListener("input", (e) => { $("#faqPreview").innerHTML = markdownPreview(e.target.value); });
+  form.addEventListener("submit", (e) => { e.preventDefault(); $("#resSave").click(); });
+
+  $("#resSave", root).addEventListener("click", async () => {
+    const btn = $("#resSave", root);
+    if (!form.reportValidity()) return;
+    const data = readForm(fields, form);
+    if (!data.slug) delete data.slug;
+    const file = form.__image?.files?.[0];
+    const removeImage = form.__remove_image?.checked;
+
+    let options;
+    if (res.image) {
+      const fd = new FormData();
+      for (const [k, v] of Object.entries(data)) fd.append(k, Array.isArray(v) ? JSON.stringify(v) : v === null ? "" : String(v));
+      if (file) fd.append("image", file);
+      else if (removeImage) fd.append("remove_image", "true");
+      options = { form: fd };
+    } else {
+      options = { body: data };
+    }
+
+    setBusy(btn, true, "Saving…");
+    try {
+      await api(isEdit ? `/admin/${res.path}/${row.id}` : `/admin/${res.path}`, { method: isEdit ? "PATCH" : "POST", ...options });
+      closeModal();
+      toast(isEdit ? "Changes saved" : `${res.single[0].toUpperCase() + res.single.slice(1)} added`);
+      await reloadResource();
+    } catch (err) {
+      setBusy(btn, false);
+      showFieldErrors(form, err);
+    }
+  });
+}
+
+async function moveResource(id, dir) {
+  const { res, rows } = pageState;
+  const i = rows.findIndex((r) => r.id === id), j = i + dir;
+  if (i < 0 || j < 0 || j >= rows.length) return;
+  // normalise order values to the current positions, then swap the two rows
+  const updates = [];
+  rows.forEach((r, idx) => {
+    let target = idx + 1;
+    if (idx === i) target = j + 1; else if (idx === j) target = i + 1;
+    if (Number(r[res.orderKey]) !== target) updates.push([r.id, target]);
+  });
+  try {
+    await Promise.all(updates.map(([rid, order]) => api(`/admin/${res.path}/${rid}`, { method: "PATCH", body: { [res.orderKey]: order } })));
+    await reloadResource();
+  } catch (err) { toastError(err); await reloadResource(); }
+}
+
+/* ============================================================================
+   Site settings
+   ========================================================================== */
+const SETTINGS_GROUPS = [
+  { title: "Company", desc: "Name and description used across the website", fields: [
+    { name: "company_name", label: "Company name", required: true, max: 100 },
+    { name: "legal_name", label: "Legal name", required: true, max: 150, help: "Shown in the footer copyright" },
+    { name: "tagline", label: "Tagline", max: 255, span: "all" },
+    { name: "short_description", label: "Footer description", type: "textarea", max: 1000, span: "all", rows: 3 },
+  ] },
+  { title: "Contact details", desc: "Contact section, footer and map card", fields: [
+    { name: "phone", label: "Phone", required: true, max: 50 },
+    { name: "email", label: "Email", type: "email", required: true },
+    { name: "support_email", label: "Support email", type: "email" },
+    { name: "working_hours", label: "Working hours", max: 150, placeholder: "Mon - Fri: 8:30 AM - 5:30 PM EAT" },
+    { name: "address_line1", label: "Address line 1", required: true, max: 255, placeholder: "Building, floor" },
+    { name: "address_line2", label: "Address line 2", max: 255, placeholder: "Area / sub-city" },
+    { name: "city", label: "City", required: true, max: 100 },
+    { name: "country", label: "Country", required: true, max: 100 },
+  ] },
+  { title: "Map location", desc: "Office pin on the “Our Location” map", fields: [
+    { name: "latitude", label: "Latitude", type: "number", step: "any", required: true, min: -90, max: 90 },
+    { name: "longitude", label: "Longitude", type: "number", step: "any", required: true, min: -180, max: 180 },
+    { name: "map_zoom", label: "Zoom (1–21)", type: "number", min: 1, max: 21, required: true },
+    { name: "timezone", label: "Time zone", required: true, max: 64 },
+  ] },
+  { title: "Chat assistant", desc: "Greeting and fallback answer of the website chat", fields: [
+    { name: "chat_bot_name", label: "Assistant name", required: true, max: 100, span: "all" },
+    { name: "chat_welcome_message", label: "Welcome message", type: "textarea", required: true, span: "all", rows: 4 },
+    { name: "chat_default_response", label: "Fallback answer (no keyword matched)", type: "textarea", required: true, span: "all", rows: 6 },
+  ] },
+];
+const SETTINGS_IMAGES = [
+  ["logo", "logo_url", "Logo", "Navbar and footer"],
+  ["hero-background", "hero_background_url", "Hero background", "Faded image behind the hero"],
+  ["hero-image", "hero_image_url", "Hero showcase", "Dashboard image under the hero"],
+  ["about-image", "about_image_url", "About image", "Image in the About section"],
+  ["solutions-background", "solutions_background_url", "Solutions background", "Pattern behind the solutions grid"],
+];
+
+async function pageSettings() {
+  setTitle("Site Settings");
+  const { data: s } = await api("/admin/settings");
+  pageState.settings = s;
+  const allFields = SETTINGS_GROUPS.flatMap((g) => g.fields);
+
+  view().innerHTML = `
+    <div class="page-head"><div><h2>Site Settings</h2><p>Company information, contact details, map and images.</p></div>
+      <div class="toolbar"><button class="btn primary" id="settingsSave">${icon("check", "sm")} Save changes</button></div></div>
+    <form id="settingsForm" class="stack" novalidate>
+      ${SETTINGS_GROUPS.map((g) => `<div class="card"><div class="card-head"><div class="grow"><h3>${g.title}</h3><p>${g.desc}</p></div>
+        ${g.title === "Map location" ? `<a class="btn sm" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${s.latitude},${s.longitude}">${icon("external", "sm")} Check on map</a>` : ""}</div>
+        <div class="card-body grid cols-2">${g.fields.map((f) => fieldHtml(f, s[f.name])).join("")}</div></div>`).join("")}
+    </form>
+    <div class="card" style="margin-top:18px"><div class="card-head"><div class="grow"><h3>Images</h3><p>Uploaded to Cloudinary. If removed, the website uses its built-in default.</p></div></div>
+      <div class="card-body"><div class="img-tiles" id="imgTiles"></div></div></div>
+    <div class="row" style="justify-content:flex-end;margin-top:18px"><button class="btn primary" data-action="settings-save-bottom">${icon("check", "sm")} Save changes</button></div>`;
+
+  renderSettingsImages();
+  const form = $("#settingsForm");
+  const save = async (btn) => {
+    if (!form.reportValidity()) return;
+    const values = readForm(allFields, form);
+    const changes = {};
+    for (const [k, v] of Object.entries(values)) {
+      const before = pageState.settings[k] ?? "";
+      if (String(v) !== String(before)) changes[k] = v === "" ? null : v;
+    }
+    if (!Object.keys(changes).length) return toast("No changes to save", "info");
+    setBusy(btn, true, "Saving…");
+    try {
+      const { data } = await api("/admin/settings", { method: "PATCH", body: changes });
+      pageState.settings = data;
+      toast("Settings saved");
+    } catch (err) { showFieldErrors(form, err); }
+    finally { setBusy(btn, false); }
+  };
+  $("#settingsSave").addEventListener("click", (e) => save(e.currentTarget));
+  $('[data-action="settings-save-bottom"]').addEventListener("click", (e) => save(e.currentTarget));
+}
+
+function renderSettingsImages() {
+  const s = pageState.settings;
+  $("#imgTiles").innerHTML = SETTINGS_IMAGES.map(([key, col, label, help]) => `
+    <div class="img-tile">
+      <div class="preview">${s[col] ? `<img src="${esc(s[col])}" alt="${esc(label)}" />` : `<div>${icon("image")}<div>Using website default</div></div>`}</div>
+      <div class="meta"><div class="grow"><b class="small">${label}</b><div class="small muted ellipsis">${help}</div></div>
+        <label class="btn sm icon" title="Upload">${icon("upload", "sm")}<input type="file" class="sr-only" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" data-settings-img="${key}" /></label>
+        ${s[col] ? `<button class="btn sm icon danger" data-action="settings-img-remove" data-key="${key}" title="Remove">${icon("trash", "sm")}</button>` : ""}
+      </div>
+    </div>`).join("");
+  $$("[data-settings-img]").forEach((input) => input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return toast("Image is larger than 5 MB", "error");
+    const tile = input.closest(".img-tile");
+    $(".preview", tile).innerHTML = '<span class="spinner"></span>';
+    const fd = new FormData();
+    fd.append("image", file);
+    try {
+      const { data } = await api(`/admin/settings/images/${input.dataset.settingsImg}`, { method: "POST", form: fd });
+      pageState.settings = { ...pageState.settings, ...pickImageCols(data) };
+      toast("Image updated");
+    } catch (err) { toastError(err); }
+    renderSettingsImages();
+  }));
+}
+const pickImageCols = (s) => Object.fromEntries(Object.entries(s).filter(([k]) => /_url$|_public_id$/.test(k)));
+
+/* ============================================================================
+   Contact messages
+   ========================================================================== */
+const statusBadge = (status) => {
+  const [, label, tone] = MSG_STATUSES.find(([k]) => k === status) || [status, status, ""];
+  return `<span class="badge dot ${tone}">${label}</span>`;
+};
+const msgState = { status: "", search: "", page: 1, limit: 15 };
+
+async function pageMessages() {
+  setTitle("Messages");
+  view().innerHTML = `
+    <div class="page-head"><div><h2>Messages</h2><p>Enquiries sent through the website contact form.</p></div>
+      <div class="toolbar"><div class="search">${icon("search", "sm")}<input class="input" type="search" placeholder="Search name or email…" id="msgSearch" value="${esc(msgState.search)}" /></div>
+      <button class="btn icon" data-action="msg-refresh" title="Refresh">${icon("refresh", "sm")}</button></div></div>
+    <div class="tabs" id="msgTabs" style="margin-bottom:14px"></div>
+    <div class="card" id="msgTable">${loadingHtml}</div>`;
+  $("#msgSearch").addEventListener("input", debounce((e) => { msgState.search = e.target.value.trim(); msgState.page = 1; loadMessages(); }, 300));
+  await loadMessages();
+}
+
+async function loadMessages() {
+  const q = new URLSearchParams({ page: msgState.page, limit: msgState.limit });
+  if (msgState.status) q.set("status", msgState.status);
+  if (msgState.search) q.set("search", msgState.search);
+  const [{ data: rows, meta }, { data: counts }] = await Promise.all([api(`/admin/contact-messages?${q}`), api("/admin/contact-messages/stats")]);
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  $("#msgTabs").innerHTML = [["", "All", total], ...MSG_STATUSES.map(([k, l]) => [k, l, counts[k] || 0])]
+    .map(([k, l, n]) => `<button class="tab ${msgState.status === k ? "active" : ""}" data-action="msg-tab" data-status="${k}">${l}<span class="n">${n}</span></button>`).join("");
+
+  const box = $("#msgTable");
+  if (!rows.length) { box.innerHTML = `<div class="empty">${icon("inbox")}<h4>No messages</h4><p>${msgState.search || msgState.status ? "Try another filter." : "Contact form submissions will appear here."}</p></div>`; return; }
+  box.innerHTML = `<div class="table-wrap"><table class="table">
+    <thead><tr><th>From</th><th class="hide-sm">Message</th><th>Status</th><th class="hide-sm">Received</th></tr></thead>
+    <tbody>${rows.map((m) => `
+      <tr class="clickable ${m.status === "new" ? "unread" : ""}" data-action="open-message" data-id="${m.id}">
+        <td><div class="ellipsis" style="max-width:220px">${esc(m.full_name)}</div><div class="small muted ellipsis" style="max-width:220px">${esc(m.email)}</div></td>
+        <td class="hide-sm"><div class="clamp muted">${esc(m.message)}</div></td>
+        <td>${statusBadge(m.status)}</td>
+        <td class="hide-sm small muted" style="white-space:nowrap" title="${esc(fmtDate(m.created_at))}">${fmtRel(m.created_at)}</td>
+      </tr>`).join("")}</tbody></table></div>
+    <div class="pager"><span class="small muted">Page ${meta.page} of ${Math.max(1, meta.pages)} · ${meta.total} messages</span>
+      <div class="row"><button class="btn sm" data-action="msg-page" data-dir="-1" ${meta.page <= 1 ? "disabled" : ""}>Previous</button>
+      <button class="btn sm" data-action="msg-page" data-dir="1" ${meta.page >= meta.pages ? "disabled" : ""}>Next</button></div></div>`;
+}
+
+async function openMessage(id) {
+  let { data: m } = await api(`/admin/contact-messages/${id}`);
+  if (m.status === "new") {
+    m = (await api(`/admin/contact-messages/${id}`, { method: "PATCH", body: { status: "read" } })).data;
+    refreshMessageCount();
+  }
+  const subject = encodeURIComponent(`Re: ${m.subject || "Your message to ClickAddis"}`);
+  const root = openModal({
+    title: "Message", size: "lg",
+    body: `<dl class="detail-grid">
+        <dt>From</dt><dd><b>${esc(m.full_name)}</b></dd>
+        <dt>Email</dt><dd><a href="mailto:${esc(m.email)}">${esc(m.email)}</a></dd>
+        ${m.phone ? `<dt>Phone</dt><dd><a href="tel:${esc(m.phone)}">${esc(m.phone)}</a></dd>` : ""}
+        ${m.company ? `<dt>Company</dt><dd>${esc(m.company)}</dd>` : ""}
+        ${m.subject ? `<dt>Subject</dt><dd>${esc(m.subject)}</dd>` : ""}
+        <dt>Source</dt><dd>${esc(m.source.replace("_", " "))}</dd>
+        <dt>Received</dt><dd>${fmtDate(m.created_at)}</dd>
+        ${m.replied_at ? `<dt>Replied</dt><dd>${fmtDate(m.replied_at)}</dd>` : ""}
+      </dl>
+      <div class="message-box" style="margin-top:16px">${esc(m.message)}</div>
+      <form id="msgForm" class="grid cols-2" style="margin-top:18px">
+        ${fieldHtml({ name: "status", label: "Status", type: "select", options: MSG_STATUSES.map(([k, l]) => [k, l]) }, m.status)}
+        <div class="field"><label>&nbsp;</label><a class="btn" href="mailto:${esc(m.email)}?subject=${subject}">${icon("mail", "sm")} Reply by email</a></div>
+        ${fieldHtml({ name: "admin_notes", label: "Internal notes", type: "textarea", span: "all", rows: 3, placeholder: "Only visible to admins" }, m.admin_notes)}
+      </form>`,
+    footer: `<button class="btn danger" id="msgDelete" style="margin-right:auto">${icon("trash", "sm")} Delete</button>
+      <button class="btn" data-action="close-modal">Close</button><button class="btn primary" id="msgSave">Save</button>`,
+  });
+  $("#msgSave", root).addEventListener("click", async (e) => {
+    const form = $("#msgForm", root), btn = e.currentTarget;
+    setBusy(btn, true, "Saving…");
+    try {
+      await api(`/admin/contact-messages/${m.id}`, { method: "PATCH", body: { status: form.status.value, admin_notes: form.admin_notes.value.trim() } });
+      closeModal(); toast("Message updated");
+      afterMessageChange();
+    } catch (err) { setBusy(btn, false); toastError(err); }
+  });
+  $("#msgDelete", root).addEventListener("click", async () => {
+    if (!(await confirmDialog({ title: "Delete message?", message: `The message from <b>${esc(m.full_name)}</b> will be permanently deleted.` }))) return;
+    try { await api(`/admin/contact-messages/${m.id}`, { method: "DELETE" }); toast("Message deleted"); afterMessageChange(); }
+    catch (err) { toastError(err); }
+  });
+}
+const afterMessageChange = () => {
+  refreshMessageCount();
+  if ((location.hash || "").startsWith("#/messages")) loadMessages().catch(toastError);
+  else if ((location.hash || "#/dashboard").startsWith("#/dashboard")) route();
+};
+
+/* ============================================================================
+   Admin accounts (superadmin)
+   ========================================================================== */
+async function pageUsers() {
+  setTitle("Admin Accounts");
+  const { data: users } = await api("/admin/users");
+  pageState.users = users;
+  view().innerHTML = `
+    <div class="page-head"><div><h2>Admin Accounts</h2><p>Create admin logins, reset passwords and activate or deactivate accounts.</p></div>
+      <div class="toolbar"><button class="btn primary" data-action="user-new">${icon("plus", "sm")} New admin</button></div></div>
+    <div class="callout" style="margin-bottom:14px">${icon("info", "sm")} Admins can manage all website content. Only the superadmin can manage admin accounts. Deactivated admins are signed out immediately.</div>
+    <div class="card"><div class="table-wrap"><table class="table">
+      <thead><tr><th>User</th><th>Role</th><th>Status</th><th class="hide-sm">Last login</th><th class="hide-sm">Created</th><th></th></tr></thead>
+      <tbody>${users.map((u) => {
+        const owner = u.role === "superadmin";
+        return `<tr>
+          <td><div class="row"><div class="avatar">${esc(initials(u.full_name))}</div><div><b>${esc(u.full_name)}</b>${u.id === state.user.id ? ' <span class="badge">You</span>' : ""}<div class="small muted">@${esc(u.username)}</div></div></div></td>
+          <td>${owner ? '<span class="badge primary">Superadmin</span>' : '<span class="badge info">Admin</span>'}</td>
+          <td>${owner ? '<span class="badge dot success">Active</span>' : `<label class="switch"><input type="checkbox" data-action="user-toggle" data-id="${u.id}" ${u.is_active ? "checked" : ""} /><span class="track"></span><span class="small ${u.is_active ? "" : "muted"}">${u.is_active ? "Active" : "Inactive"}</span></label>`}</td>
+          <td class="hide-sm small muted">${fmtRel(u.last_login_at)}</td>
+          <td class="hide-sm small muted">${new Date(u.created_at).toLocaleDateString()}</td>
+          <td><div class="actions">${owner ? "" : `
+            <button class="btn ghost sm icon" data-action="user-edit" data-id="${u.id}" title="Edit">${icon("edit", "sm")}</button>
+            <button class="btn ghost sm icon" data-action="user-password" data-id="${u.id}" title="Reset password">${icon("key", "sm")}</button>
+            <button class="btn ghost sm icon" data-action="user-delete" data-id="${u.id}" title="Delete" style="color:var(--danger)">${icon("trash", "sm")}</button>`}</div></td>
+        </tr>`;
+      }).join("")}</tbody></table></div>
+      ${users.length <= 1 ? `<div class="empty" style="border-top:1px solid var(--border)">${icon("users")}<h4>No admins yet</h4><p>Create an account for each person who manages the website.</p></div>` : ""}
+    </div>`;
+}
+
+function openUserForm(user) {
+  const isEdit = Boolean(user);
+  const fields = isEdit
+    ? [{ name: "full_name", label: "Full name", required: true, max: 150, span: "all" }, { name: "is_active", label: "Account active", type: "bool" }]
+    : [
+      { name: "full_name", label: "Full name", required: true, max: 150, span: "all" },
+      { name: "username", label: "Username", required: true, max: 50, pattern: "[a-zA-Z0-9._\\-]{3,50}", help: "3–50 characters: letters, numbers, dot, dash, underscore" },
+      { name: "password", label: "Password", type: "password", required: true, help: "At least 8 characters. Share it securely with the admin." },
+      { name: "is_active", label: "Account active", type: "bool", default: true },
+    ];
+  const root = openModal({
+    title: isEdit ? `Edit ${user.full_name}` : "New admin account",
+    body: `<form id="userForm" class="grid cols-2" novalidate>${fields.map((f) => fieldHtml(f, isEdit ? user[f.name] : undefined)).join("")}</form>`,
+    footer: `<button class="btn" data-action="close-modal">Cancel</button><button class="btn primary" id="userSave">${isEdit ? "Save changes" : "Create admin"}</button>`,
+  });
+  const form = $("#userForm", root);
+  if (!isEdit) form.password.value = randomPassword();
+  form.addEventListener("submit", (e) => { e.preventDefault(); $("#userSave").click(); });
+  $("#userSave", root).addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    if (!form.reportValidity()) return;
+    const data = readForm(fields, form);
+    if (data.username) data.username = data.username.toLowerCase();
+    setBusy(btn, true, "Saving…");
+    try {
+      await api(isEdit ? `/admin/users/${user.id}` : "/admin/users", { method: isEdit ? "PATCH" : "POST", body: data });
+      closeModal();
+      if (isEdit) toast("Account updated");
+      else showCredentials(data.username, data.password, "Admin account created");
+      await pageUsers();
+    } catch (err) { setBusy(btn, false); showFieldErrors(form, err); }
+  });
+}
+
+function openPasswordReset(user) {
+  const root = openModal({
+    title: `Reset password — ${user.full_name}`, size: "sm",
+    body: `<form id="pwForm" class="grid" novalidate>${fieldHtml({ name: "password", label: "New password", type: "password", required: true, help: "The admin will be signed out of all devices." })}</form>`,
+    footer: `<button class="btn" data-action="close-modal">Cancel</button><button class="btn primary" id="pwSave">Reset password</button>`,
+  });
+  const form = $("#pwForm", root);
+  form.password.value = randomPassword();
+  $("#pwSave", root).addEventListener("click", async (e) => {
+    if (!form.reportValidity()) return;
+    const btn = e.currentTarget, password = form.password.value;
+    setBusy(btn, true, "Saving…");
+    try {
+      await api(`/admin/users/${user.id}`, { method: "PATCH", body: { password } });
+      closeModal(); showCredentials(user.username, password, "Password reset");
+    } catch (err) { setBusy(btn, false); showFieldErrors(form, err); }
+  });
+}
+
+function showCredentials(username, password, title) {
+  const root = openModal({
+    title, size: "sm",
+    body: `<p style="margin-top:0">Share these login details securely. The password won't be shown again.</p>
+      <dl class="detail-grid"><dt>Login page</dt><dd class="mono">${esc(location.origin + location.pathname)}</dd>
+      <dt>Username</dt><dd class="mono">${esc(username)}</dd><dt>Password</dt><dd class="mono">${esc(password)}</dd></dl>`,
+    footer: `<button class="btn" id="copyCreds">Copy</button><button class="btn primary" data-action="close-modal">Done</button>`,
+  });
+  $("#copyCreds", root).addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(`Login: ${location.origin + location.pathname}\nUsername: ${username}\nPassword: ${password}`); toast("Copied to clipboard"); }
+    catch { toast("Copy failed — select the text manually", "error"); }
+  });
+}
+
+/* ============================================================================
+   My account
+   ========================================================================== */
+async function pageAccount() {
+  setTitle("My Account");
+  const { data: me } = await api("/auth/me");
+  state.user = me; localStorage.setItem("ca_user", JSON.stringify(me));
+  view().innerHTML = `
+    <div class="page-head"><div><h2>My Account</h2><p>Your profile, password and preferences.</p></div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start">
+      <div class="card"><div class="card-head"><div class="grow"><h3>Profile</h3></div></div>
+        <div class="card-body"><div class="row" style="margin-bottom:16px"><div class="avatar" style="width:52px;height:52px;font-size:18px">${esc(initials(me.full_name))}</div>
+          <div><b style="font-size:16px">${esc(me.full_name)}</b><div class="muted">@${esc(me.username)}</div></div></div>
+          <dl class="detail-grid"><dt>Role</dt><dd>${me.role === "superadmin" ? "Superadmin" : "Admin"}</dd><dt>Last login</dt><dd>${fmtDate(me.last_login_at)}</dd><dt>Member since</dt><dd>${fmtDate(me.created_at)}</dd></dl></div></div>
+      <div class="card"><div class="card-head"><div class="grow"><h3>Change password</h3><p>You will stay signed in on this device only.</p></div></div>
+        <form class="card-body grid" id="cpForm" novalidate>
+          <div class="field"><label for="cp1">Current password</label><input class="input" id="cp1" name="current_password" type="password" autocomplete="current-password" required /><div class="err hidden" data-err="current_password"></div></div>
+          <div class="field"><label for="cp2">New password</label><input class="input" id="cp2" name="new_password" type="password" autocomplete="new-password" minlength="8" required /><div class="help">At least 8 characters</div><div class="err hidden" data-err="new_password"></div></div>
+          <div class="field"><label for="cp3">Confirm new password</label><input class="input" id="cp3" name="confirm" type="password" autocomplete="new-password" required /></div>
+          <div><button class="btn primary" type="submit">Update password</button></div>
+        </form></div>
+      <div class="card"><div class="card-head"><div class="grow"><h3>Preferences</h3><p>Stored on this device</p></div></div>
+        <form class="card-body grid" id="prefForm">
+          <div class="field"><label for="siteUrl">Public website address</label><input class="input" id="siteUrl" value="${esc(siteUrl())}" /><div class="help">Used by the “View website” button</div></div>
+          <div><button class="btn" type="submit">Save preferences</button></div>
+        </form></div>
+    </div>`;
+
+  $("#cpForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget, btn = $("button[type=submit]", form);
+    if (!form.reportValidity()) return;
+    if (form.new_password.value !== form.confirm.value) return toast("The new passwords do not match", "error");
+    setBusy(btn, true, "Updating…");
+    try {
+      const { data } = await api("/auth/change-password", { method: "POST", body: { current_password: form.current_password.value, new_password: form.new_password.value } });
+      saveSession(data); form.reset(); toast("Password updated");
+    } catch (err) { showFieldErrors(form, err); }
+    finally { setBusy(btn, false); }
+  });
+  $("#prefForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = $("#siteUrl").value.trim();
+    if (v) localStorage.setItem(SITE_URL_KEY, v); else localStorage.removeItem(SITE_URL_KEY);
+    toast("Preferences saved");
+    renderShell(); route();
+  });
+}
+
+/* ============================================================================
+   Global event delegation
+   ========================================================================== */
+const actions = {
+  "close-modal": () => closeModal(),
+  "open-nav": () => $("#app").classList.add("nav-open"),
+  "close-nav": () => $("#app").classList.remove("nav-open"),
+  "reload": () => route(),
+  "logout": async () => { if (await confirmDialog({ title: "Log out?", message: "You will need to sign in again.", confirmText: "Log out", danger: false })) logout("You have been logged out."); },
+  "toggle-theme": (el) => {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("ca_theme", next);
+    el.innerHTML = icon(next === "light" ? "moon" : "sun");
+  },
+  "save-api": () => {
+    const v = $("#apiBase").value.trim();
+    if (v) localStorage.setItem("ca_api_base", v); else localStorage.removeItem("ca_api_base");
+    location.reload();
+  },
+  "gen-password": (el) => { const input = document.getElementById(el.dataset.target); input.value = randomPassword(); input.focus(); input.select(); },
+
+  "res-new": () => openResourceForm(pageState.res).catch(toastError),
+  "res-edit": (el) => openResourceForm(pageState.res, pageState.rows.find((r) => r.id === el.dataset.id)).catch(toastError),
+  "res-move": (el) => moveResource(el.dataset.id, Number(el.dataset.dir)),
+  "res-toggle": async (el) => {
+    const { res } = pageState;
+    try {
+      await api(`/admin/${res.path}/${el.dataset.id}`, { method: "PATCH", body: { [res.activeKey]: el.checked } });
+      const row = pageState.rows.find((r) => r.id === el.dataset.id); if (row) row[res.activeKey] = el.checked;
+      toast(el.checked ? "Now visible on the website" : "Hidden from the website");
+    } catch (err) { el.checked = !el.checked; toastError(err); }
+  },
+  "res-delete": async (el) => {
+    const { res } = pageState;
+    const row = pageState.rows.find((r) => r.id === el.dataset.id);
+    if (!(await confirmDialog({ title: `Delete ${res.single}?`, message: `<b>${esc(res.titleOf(row))}</b> will be permanently removed from the website${res.image ? " together with its image" : ""}.` }))) return;
+    try { await api(`/admin/${res.path}/${row.id}`, { method: "DELETE" }); toast("Deleted"); await reloadResource(); }
+    catch (err) { toastError(err); }
+  },
+
+  "settings-img-remove": async (el) => {
+    if (!(await confirmDialog({ title: "Remove image?", message: "The website will fall back to its built-in default image.", confirmText: "Remove" }))) return;
+    try {
+      const { data } = await api(`/admin/settings/images/${el.dataset.key}`, { method: "DELETE" });
+      pageState.settings = { ...pageState.settings, ...pickImageCols(data) };
+      renderSettingsImages(); toast("Image removed");
+    } catch (err) { toastError(err); }
+  },
+
+  "open-message": (el) => openMessage(el.dataset.id).catch(toastError),
+  "msg-tab": (el) => { msgState.status = el.dataset.status; msgState.page = 1; loadMessages().catch(toastError); },
+  "msg-page": (el) => { msgState.page += Number(el.dataset.dir); loadMessages().catch(toastError); },
+  "msg-refresh": () => loadMessages().then(() => toast("Refreshed", "info")).catch(toastError),
+
+  "user-new": () => openUserForm(),
+  "user-edit": (el) => openUserForm(pageState.users.find((u) => u.id === el.dataset.id)),
+  "user-password": (el) => openPasswordReset(pageState.users.find((u) => u.id === el.dataset.id)),
+  "user-toggle": async (el) => {
+    const u = pageState.users.find((x) => x.id === el.dataset.id);
+    try {
+      await api(`/admin/users/${u.id}`, { method: "PATCH", body: { is_active: el.checked } });
+      u.is_active = el.checked;
+      const label = el.parentElement.querySelector("span.small");
+      label.textContent = el.checked ? "Active" : "Inactive"; label.classList.toggle("muted", !el.checked);
+      toast(el.checked ? `${u.full_name} activated` : `${u.full_name} deactivated and signed out`);
+    } catch (err) { el.checked = !el.checked; toastError(err); }
+  },
+  "user-delete": async (el) => {
+    const u = pageState.users.find((x) => x.id === el.dataset.id);
+    if (!(await confirmDialog({ title: "Delete admin?", message: `<b>${esc(u.full_name)}</b> (@${esc(u.username)}) will lose access permanently. Consider deactivating instead.` }))) return;
+    try { await api(`/admin/users/${u.id}`, { method: "DELETE" }); toast("Admin deleted"); await pageUsers(); }
+    catch (err) { toastError(err); }
+  },
+};
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-action]");
+  if (!el || el.disabled) return;
+  const fn = actions[el.dataset.action];
+  if (!fn) return;
+  if (el.tagName !== "INPUT") e.preventDefault();
+  fn(el, e);
+});
+
+/* ============================================================================
+   Boot
+   ========================================================================== */
+(() => {
+  const theme = localStorage.getItem("ca_theme") || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.dataset.theme = theme;
+})();
+window.addEventListener("hashchange", route);
+window.addEventListener("online", () => { if (state.token) { renderShell(); route(); } });
+window.addEventListener("offline", () => toast("You are offline", "error"));
+setInterval(() => { if (state.token && document.visibilityState === "visible") refreshMessageCount(); }, 60_000);
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+route();
+</script>
+</body>
+</html>
